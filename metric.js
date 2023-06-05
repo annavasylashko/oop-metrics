@@ -18,7 +18,7 @@
  *
  *  console.log(`DIT: ${calculateDIT(cls)}`);
  *  console.log(`NOC: ${calculateNOC(allClasses, cls)}`);
- *  console.log("MOOD: ", calculateMOOD(allClasses, cls));
+ *  console.log(`MOOD: ${calculateMOOD(allClasses, cls)}`);
  *  const metrics = calculateMOOD(allClasses, BaseClass);
  *  console.log(metrics);
  * ```
@@ -68,7 +68,7 @@ function calculateNOC(classes, cls) {
 }
 
 /**
- * Calculates the MOOD metrics (Method Inheritance Factor) for a given class.
+ * Calculates the MOOD metrics (Metrics for Object Oriented Design) for a given class.
  * @param {Object} classes - An object containing all classes to be considered.
  * @param {Function} cls - The class to calculate the MOOD metrics for.
  * @returns {Object} An object containing the MOOD metrics for the given class.
