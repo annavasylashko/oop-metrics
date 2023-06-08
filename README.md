@@ -21,7 +21,7 @@ This function calculates the number of direct subclasses for a given class withi
     * If they match, increment the `count` by 1.
 3. Return the `count` which represents the number of direct subclasses for the given class.
 
-### 3. [calculateMOOD(classes, cls)](https://github.com/annavasylashko/oop-metrics/blob/main/metric.js#L76)
+### 3. [calculateMOOD(cls)](https://github.com/annavasylashko/oop-metrics/blob/main/metric.js#L75)
 This function calculates the MOOD metrics (Metrics for Object Oriented Design) for a given class.
 
 1. Initialize arrays `inheritedMethods` and `inheritedProperties`
@@ -38,29 +38,34 @@ This function calculates the MOOD metrics (Metrics for Object Oriented Design) f
 9. Calculate the **Methods Hidden Factor (MHF)** by filtering `inheritedMethods` to include only methods that are not present in `ownMethods` and counting the number of such methods.
 10. Calculate the **Attribute Hiding Factor (AHF)** by filtering `inheritedProperties` to include only properties that are not present in `ownProperties` and counting the number of such properties.
 11. Calculate the **Attribute Inheritance Factor (AIF)** by dividing the length of `inheritedProperties` by the length of `allProperties`.
-12. Calculate the **Polymorphism Factor (POF)** by calling the `calculatePOF` function _(described below)_ with the classes and cls parameters.
-13. Return an object containing the calculated MOOD metrics.
+12. Return an object containing the calculated MOOD metrics.
 
-### 3.1 [calculatePOF(classes, cls)](https://github.com/annavasylashko/oop-metrics/blob/main/metric.js#L133)
-This function calculates the Polymorphism Factor (POF) for a given class.
+### 4 [calculatePOF(classes)](https://github.com/annavasylashko/oop-metrics/blob/main/metric.js#L128)
+This function calculates the Polymorphism Factor (POF) for a set of classes. The POF metric is used to measure the extent of method overriding in the inheritance hierarchy of classes.
 
-1. Get all child classes that inherit from the given class by filtering the values of the `classes` object based on whether their prototype is an instance of `cls`.
-2. Initialize an empty set `overriddenMethods` to store the overridden method names.
-3. Iterate over each child class.
-    * Get all property names of the child class's prototype using `Object.getOwnPropertyNames(childClass.prototype)`.
-    * Check if each property is a non-constructor function and add its name to the `overriddenMethods` set.
-4. Initialize an empty set `ownMethods` to store the own method names of the given class.
-5. Get all property names of the given class's prototype using `Object.getOwnPropertyNames(cls.prototype)`.
-    * Check if each property is a non-constructor function and add its name to the `ownMethods` set.
-6. Initialize `pof` (Polymorphism Factor) to 0.
-7. Iterate over each own method of the given class.
-    * Check if the method is overridden in any child class by checking if the `overriddenMethods` set contains the method name.
-    * If it is overridden, increment the `pof` by 1.
-8. Return `pof` value.
+
+Polymorphism Factor Calculator
+This code snippet provides a function called calculatePOF that calculates the Polymorphism Factor (POF) for a set of classes. The POF metric is used to measure the extent of method overriding in the inheritance hierarchy of classes.
+
+1. The function accepts an `Object` parameter `classes`, which contains all the classes to be considered for calculating the POF.
+2. Two variables, `up` and `down`, are initialized to zero. These variables will be used to calculate the numerator and denominator of the POF.
+3. The function iterates over each class in the `classes` object using `Object.values(classes).forEach((cls) => { ... })`.
+4. For each class, it initializes an empty array called `inheritedMethods` to collect the inherited methods.
+5. It starts traversing the prototype chain of the class's prototype until it reaches `Object.prototype`. This is done using a `while` loop.
+6. Within the loop, it gets all the property names of the current prototype using `Object.getOwnPropertyNames(prototype)`.
+7. It filters and collects only the inherited methods by checking the type of each property (function) using `typeof prototype[name] === 'function'`.
+8. It excludes the constructor method from the inherited methods using `inheritedMethods = inheritedMethods.filter((method) => method !== 'constructor')`.
+9. It moves up the prototype chain by assigning the current prototype's prototype to the `prototype` variable: `prototype = Object.getPrototypeOf(prototype)`.
+10. After the loop, it adds the length of `inheritedMethods` to the `up` variable, representing the numerator of the POF.
+11. It retrieves all the own methods of the class's prototype using `Object.getOwnPropertyNames(cls.prototype).filter((name) => typeof cls.prototype[name] === 'function')`.
+12. It excludes the constructor method from the own methods using `ownMethods = ownMethods.filter((method) => method !== 'constructor')`.
+13. It filters the own methods to keep only those that are not present in the inherited methods using `ownMethods = ownMethods.filter((method) => !inheritedMethods.includes(method))`.
+14. It retrieves all the child classes that inherit from the given class by checking the `prototype` chain using `Object.values(classes).filter((childClass) => childClass.prototype instanceof cls)`.
+15. It calculates the contribution to the denominator of the POF by multiplying the length of `ownMethods` with the number of child classes plus one: `ownMethods.length * (childClasses.length + 1)`.
+16. It adds the contribution to the `down` variable, representing the denominator of the POF.
+17. After iterating over all the classes, it returns the POF value by dividing `up` by `down`.
 
 ## Usage
 Enter command `node test.js` to compile [test file](https://github.com/annavasylashko/oop-metrics/blob/main/test.js).
 
 The output will contain all calculated metrics for each class written in this file:
-
-<img width="730" alt="lab3result" src="https://github.com/annavasylashko/oop-metrics/assets/50664700/79d6bd75-047e-49e3-b1c9-ef6dc301cd4a">

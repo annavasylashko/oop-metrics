@@ -69,11 +69,10 @@ function calculateNOC(classes, cls) {
 
 /**
  * Calculates the MOOD metrics (Metrics for Object Oriented Design) for a given class.
- * @param {Object} classes - An object containing all classes to be considered.
  * @param {Function} cls - The class to calculate the MOOD metrics for.
  * @returns {Object} An object containing the MOOD metrics for the given class.
  */
-function calculateMOOD(classes, cls) {
+function calculateMOOD(cls) {
     let inheritedMethods = [];
     let inheritedProperties = [];
     let prototype = Object.getPrototypeOf(cls.prototype);
@@ -118,59 +117,50 @@ function calculateMOOD(classes, cls) {
     // Attribute Inheritance Factor (AIF)
     const aif = inheritedProperties.length / allProperties.length
 
-    // Polymorphism Factor (POF)
-    const pof = calculatePOF(classes, cls)
-
-    return { mif, mhf, ahf, aif, pof };
+    return { mif, mhf, ahf, aif };
 }
 
 /**
- * Calculates the Polymorphism Factor (POF) for a given class.
+ * Calculates the Polymorphism Factor (POF) for classes.
  * @param {Object} classes - An object containing all classes to be considered.
- * @param {Function} cls - The class to calculate the POF for.
- * @returns {number} The Polymorphism Factor (POF) for the given class.
+ * @returns {number} The Polymorphism Factor (POF) for classes.
  */
-function calculatePOF(classes, cls) {
-    // Get all child classes that inherit from the given class
-    const childClasses = Object.values(classes).filter((childClass) => {
-        return childClass.prototype instanceof cls;
-    });
+function calculatePOF(classes) {
+    let up = 0
+    let down = 0
 
-    const overriddenMethods = new Set();
-    childClasses.forEach((childClass) => {
-        // Get all property names of the child class's prototype
-        Object.getOwnPropertyNames(childClass.prototype).forEach((method) => {
-            // Check if the property is a non-constructor function
-            if (method !== 'constructor' && typeof childClass.prototype[method] === 'function') {
-                // Add the method to the overridden methods set
-                overriddenMethods.add(method);
-            }
+    Object.values(classes).forEach((cls) => {
+        let inheritedMethods = [];
+        let prototype = Object.getPrototypeOf(cls.prototype);
+    
+        // Traverse the prototype chain until reaching the Object.prototype
+        while (prototype !== Object.prototype) {
+            // Get all property names of the prototype
+            const propertyNames = Object.getOwnPropertyNames(prototype);
+    
+            // Filter and collect inherited methods and properties
+            inheritedMethods.push(...propertyNames.filter((name) => typeof prototype[name] === 'function'));
+            inheritedMethods = inheritedMethods.filter((method) => method !== 'constructor')
+           
+            // Move up the prototype chain
+            prototype = Object.getPrototypeOf(prototype);
+        }
+
+        up += inheritedMethods.length
+
+        let ownMethods = Object.getOwnPropertyNames(cls.prototype).filter((name) => typeof cls.prototype[name] === 'function');
+        ownMethods = ownMethods.filter((method) => method !== 'constructor')
+        ownMethods = ownMethods.filter((method) => !inheritedMethods.includes(method))
+
+        // Get all child classes that inherit from the given class
+        const childClasses = Object.values(classes).filter((childClass) => {
+            return childClass.prototype instanceof cls;
         });
-    });
 
-    const ownMethods = new Set();
-    // Get all property names of the given class's prototype
-    Object.getOwnPropertyNames(cls.prototype).forEach((method) => {
-        // Check if the property is a non-constructor function
-        if (method !== 'constructor' && typeof cls.prototype[method] === 'function') {
-            // Add the method to the own methods set
-            ownMethods.add(method);
-        }
-    });
+        down += ownMethods.length * (childClasses.length + 1)
+    })
 
-    // Initialize the Polymorphism Factor (POF)
-    let pof = 0;
-
-    // Iterate over each own method of the given class
-    ownMethods.forEach((method) => {
-        // Check if the method is overridden in any child class
-        if (overriddenMethods.has(method)) {
-            // Increment the POF
-            pof++;
-        }
-    });
-
-    return pof;
+    return up / down;
 }
 
-export { calculateDIT, calculateNOC, calculateMOOD }
+export { calculateDIT, calculateNOC, calculateMOOD, calculatePOF }

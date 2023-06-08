@@ -67,7 +67,7 @@ class GrandchildClass2 extends ChildClass2 {
 
 export { BaseClass, ChildClass1, ChildClass2, GrandchildClass1, GrandchildClass2 }
 
-import { calculateDIT, calculateNOC, calculateMOOD } from './metric.js';
+import { calculateDIT, calculateNOC, calculateMOOD, calculatePOF } from './metric.js';
 
 const allClasses = {
     BaseClass,
@@ -81,7 +81,9 @@ for (const key in allClasses) {
     const cls = allClasses[key];
     console.log(`${key} DIT: ${calculateDIT(cls)}`);
     console.log(`${key} NOC: ${calculateNOC(allClasses, cls)}`);
-    console.log(`${key} MOOD:`, calculateMOOD(allClasses, cls));
+    console.log(`${key} MOOD:`, calculateMOOD(cls));
 
     console.log()
 }
+
+console.log(`POF: ${calculatePOF(allClasses)}`)
