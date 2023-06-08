@@ -69,3 +69,4 @@ This code snippet provides a function called calculatePOF that calculates the Po
 Enter command `node test.js` to compile [test file](https://github.com/annavasylashko/oop-metrics/blob/main/test.js).
 
 The output will contain all calculated metrics for each class written in this file:
+<img width="657" alt="result" src="https://github.com/annavasylashko/oop-metrics/assets/50664700/c9c0f946-db0c-4278-a65f-cf95da0ae38d">
